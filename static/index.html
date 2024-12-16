@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drawing Canvas with Dynamic Brush Width</title>
+</head>
+<body>
+  <h1>Drawing Canvas with Dynamic Brush Width</h1>
+  <canvas id="drawingCanvas" width="720" height="1280" style="border:1px solid black;"></canvas>
+  <div>
+    <label for="brushWidth">Brush Width:</label>
+    <input type="number" id="brushWidth" min="1" max="50" value="2">
+    <span id="brushWidthValue">Current Brush Width: 2</span>
+  </div>
+  <div>
+    <button id="undoButton">Undo</button>
+    <button id="redoButton">Redo</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('drawingCanvas');
+    const ctx = canvas.getContext('2d');
+    const brushWidthInput = document.getElementById('brushWidth');
+    const brushWidthValue = document.getElementById('brushWidthValue');
+
+    // Variables for drawing
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    // History stacks for undo/redo
+    const undoStack = [];
+    const redoStack = [];
+
+    // Set initial brush width
+    let brushWidth = parseInt(brushWidthInput.value, 10);
+
+    // Update brush width dynamically on any change to the input box
+    brushWidthInput.addEventListener('input', () => {
+      const newWidth = parseInt(brushWidthInput.value, 10);
+      if (newWidth >= 1 && newWidth <= 50) {
+        brushWidth = newWidth;
+        brushWidthValue.textContent = `Current Brush Width: ${brushWidth}`;
+      } else {
+        alert("Please enter a value between 1 and 50.");
+        brushWidthInput.value = brushWidth; // Revert to the last valid brush width
+      }
+    });
+
+    // Save the current canvas state to the undo stack
+    function saveState() {
+      undoStack.push(canvas.toDataURL());
+      if (undoStack.length > 10) undoStack.shift(); // Limit history to 10 states
+    }
+
+    // Restore the canvas from a saved state
+    function restoreState(stack) {
+      if (stack.length === 0) return;
+      const imgData = stack.pop();
+      const img = new Image();
+      img.src = imgData;
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+      };
+    }
+
+    // Start drawing
+    canvas.addEventListener('mousedown', (e) => {
+      isDrawing = true;
+      saveState(); // Save state before drawing
+      redoStack.length = 0; // Clear redo stack
+      [lastX, lastY] = [e.offsetX, e.offsetY];
+    });
+
+    // Stop drawing
+    canvas.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('mouseout', () => isDrawing = false);
+
+    // Draw on the canvas
+    canvas.addEventListener('mousemove', (e) => {
+      if (!isDrawing) return;
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.strokeStyle = 'black';
+      ctx.lineWidth = brushWidth; // Use dynamic brush width
+      ctx.lineCap = 'round'; // Enable anti-aliasing (smooth strokes)
+      ctx.lineJoin = 'round'; // Smooth connection between lines
+      ctx.stroke();
+      [lastX, lastY] = [e.offsetX, e.offsetY];
+    });
+
+    // Undo button
+    document.getElementById('undoButton').addEventListener('click', () => {
+      if (undoStack.length > 0) {
+        redoStack.push(canvas.toDataURL()); // Save current state to redo stack
+        restoreState(undoStack);
+      }
+    });
+
+    // Redo button
+    document.getElementById('redoButton').addEventListener('click', () => {
+      if (redoStack.length > 0) {
+        undoStack.push(canvas.toDataURL()); // Save current state to undo stack
+        restoreState(redoStack);
+      }
+    });
+  </script>
+</body>
+</html>
+
