@@ -24,19 +24,15 @@ const ctx = canvas.getContext('2d');
 const brushWidthInput = document.getElementById('brushWidth');
 const brushWidthValue = document.getElementById('brushWidthValue');
 
-// Variables for drawing
 let isDrawing = false;
 let lastX = 0;
 let lastY = 0;
 
-// History stacks for undo/redo
 const undoStack = [];
 const redoStack = [];
 
-// Set initial brush width
 let brushWidth = parseInt(brushWidthInput.value, 10);
 
-// Update brush width dynamically on any change to the input box
 brushWidthInput.addEventListener('input', () => {
   const newWidth = parseInt(brushWidthInput.value, 10);
   if (newWidth >= 1 && newWidth <= 50) {
@@ -44,17 +40,15 @@ brushWidthInput.addEventListener('input', () => {
     brushWidthValue.textContent = `Current Brush Width: ${brushWidth}`;
   } else {
     alert("Please enter a value between 1 and 50.");
-    brushWidthInput.value = brushWidth; // Revert to the last valid brush width
+    brushWidthInput.value = brushWidth;
   }
 });
 
-// Save the current canvas state to the undo stack
 function saveState() {
   undoStack.push(canvas.toDataURL());
-  if (undoStack.length > 10) undoStack.shift(); // Limit history to 10 states
+  if (undoStack.length > 10) undoStack.shift();
 }
 
-// Restore the canvas from a saved state
 function restoreState(stack) {
   if (stack.length === 0) return;
   const imgData = stack.pop();
@@ -66,19 +60,16 @@ function restoreState(stack) {
   };
 }
 
-// Prevent gestures on the canvas
 canvas.style.touchAction = 'none';
 
-// Start drawing
 canvas.addEventListener('pointerdown', (e) => {
-  e.preventDefault(); // Prevent default actions like scrolling or dragging
+  e.preventDefault();
   isDrawing = true;
-  saveState(); // Save state before drawing
-  redoStack.length = 0; // Clear redo stack
+  saveState();
+  redoStack.length = 0;
   [lastX, lastY] = [e.offsetX, e.offsetY];
 });
 
-// Stop drawing
 canvas.addEventListener('pointerup', (e) => {
   e.preventDefault();
   isDrawing = false;
@@ -90,33 +81,78 @@ canvas.addEventListener('pointercancel', (e) => {
 });
 
 canvas.addEventListener('pointermove', (e) => {
-  e.preventDefault(); // Prevent default actions during drawing
+  e.preventDefault();
   if (!isDrawing) return;
   ctx.beginPath();
   ctx.moveTo(lastX, lastY);
   ctx.lineTo(e.offsetX, e.offsetY);
   ctx.strokeStyle = 'black';
-  ctx.lineWidth = brushWidth; // Use dynamic brush width
-  ctx.lineCap = 'round'; // Enable anti-aliasing (smooth strokes)
-  ctx.lineJoin = 'round'; // Smooth connection between lines
+  ctx.lineWidth = brushWidth;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
   ctx.stroke();
   [lastX, lastY] = [e.offsetX, e.offsetY];
 });
 
-// Undo button
 document.getElementById('undoButton').addEventListener('click', () => {
   if (undoStack.length > 0) {
-    redoStack.push(canvas.toDataURL()); // Save current state to redo stack
+    redoStack.push(canvas.toDataURL());
     restoreState(undoStack);
   }
 });
 
-// Redo button
 document.getElementById('redoButton').addEventListener('click', () => {
   if (redoStack.length > 0) {
-    undoStack.push(canvas.toDataURL()); // Save current state to undo stack
+    undoStack.push(canvas.toDataURL());
     restoreState(redoStack);
   }
+});
+
+// Add a save button
+const saveButton = document.createElement('button');
+saveButton.textContent = 'Save SVG';
+saveButton.id = 'saveButton';
+document.body.appendChild(saveButton);
+
+saveButton.addEventListener('click', () => {
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("width", canvas.width);
+  svg.setAttribute("height", canvas.height);
+
+  const img = new Image();
+  img.src = canvas.toDataURL();
+  img.onload = () => {
+    const svgImage = document.createElementNS(svgNS, "image");
+    svgImage.setAttributeNS(null, "href", img.src);
+    svgImage.setAttribute("x", "0");
+    svgImage.setAttribute("y", "0");
+    svgImage.setAttribute("width", canvas.width);
+    svgImage.setAttribute("height", canvas.height);
+    svg.appendChild(svgImage);
+
+    const serializer = new XMLSerializer();
+    const svgData = serializer.serializeToString(svg);
+
+    fetch('/save-message', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'image/svg+xml',
+      },
+      body: svgData,
+    })
+      .then((response) => {
+        if (response.ok) {
+          alert('SVG saved successfully!');
+        } else {
+          alert('Failed to save SVG.');
+        }
+      })
+      .catch((error) => {
+        console.error('Error saving SVG:', error);
+        alert('Error saving SVG.');
+      });
+  };
 });
   </script>
 </body>
