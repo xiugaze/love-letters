@@ -9,9 +9,9 @@ func main() {
     fs := http.FileServer(http.Dir("./static"))
     http.Handle("/", fs)
 
-    err := http.ListenAndServe(":8080", nil)
+    err := http.ListenAndServe(":9999", nil)
     if err != nil {
         panic(err)
     }
-    log.Println("Serving on port 8080")
+    log.Println("Serving on port 9999")
 }
