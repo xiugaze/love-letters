@@ -48,8 +48,8 @@ func save_handler(w http.ResponseWriter, r *http.Request) {
   log.Println("Attempting write to " + path)
   err = os.WriteFile(path, body, 0644) // rw-r--r--
   if err != nil {
-    http.Error(w, "Failed to save SVG", http.StatusInternalServerError)
-    log.Println(err)
+    http.Error(w, "Failed to save SVG to " + path, http.StatusInternalServerError)
+    fmt.Println(err)
     return
   }
   fmt.Fprintln(w, "saved successfully")
@@ -78,6 +78,7 @@ func main() {
   http.HandleFunc("/get", get_handler)
 
   log.Println("Serving on port " + port)
+  log.Println("media: " + media)
   err := http.ListenAndServe(":" + port, nil)
   if err != nil {
     panic(err)

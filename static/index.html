@@ -134,7 +134,7 @@ saveButton.addEventListener('click', () => {
     const serializer = new XMLSerializer();
     const svgData = serializer.serializeToString(svg);
 
-    fetch('/save-message', {
+    fetch('/save', {
       method: 'POST',
       headers: {
         'Content-Type': 'image/svg+xml',
