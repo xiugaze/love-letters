@@ -44,10 +44,12 @@ func save_handler(w http.ResponseWriter, r *http.Request) {
   if err != nil {
     http.Error(w, "Failed to read request body (invalid .svg?)", http.StatusInternalServerError)
   }
-  err = os.WriteFile(media + "/" + time + ".svg", body, 0644) // rw-r--r--
-
+  path := media + "/" + time + ".svg";
+  log.Println("Attempting write to " + path)
+  err = os.WriteFile(path, body, 0644) // rw-r--r--
   if err != nil {
     http.Error(w, "Failed to save SVG", http.StatusInternalServerError)
+    log.Println(err)
     return
   }
   fmt.Fprintln(w, "saved successfully")
