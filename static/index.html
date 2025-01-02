@@ -141,19 +141,20 @@ saveButton.addEventListener('click', () => {
       },
       body: svgData,
     })
-      .then((response) => {
+      .then(async (response) => {
         if (response.ok) {
-          alert('SVG saved successfully!');
+          alert(`Success! Status: ${response.status} ${response.statusText}`);
         } else {
-          alert('Failed to save SVG.');
+          const errorText = await response.text(); // Get the response body, if any
+          alert(`Failed to save SVG. Status: ${response.status} ${response.statusText}\nResponse: ${errorText}`);
         }
       })
       .catch((error) => {
         console.error('Error saving SVG:', error);
-        alert('Error saving SVG.');
+        alert(`Error saving SVG: ${error.message}`);
       });
-  };
-});
+      };
+    });
   </script>
 </body>
 </html>
