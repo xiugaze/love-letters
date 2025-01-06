@@ -38,12 +38,18 @@
 
       devShells.default = pkgs.mkShell {
         buildInputs = with pkgs; [
+          platformio
+          platformio-core
+          avrdude
           go
           gopls
           gotools
           go-tools
           gomod2nix.packages.${system}.default
         ];
+        shellHook = ''
+          export PLATFORMIO_CORE_DIR=$PWD/.platformio
+        '';
       };
   });
 }

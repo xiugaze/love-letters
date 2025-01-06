@@ -1,12 +1,14 @@
 package main
 
 import (
-  "fmt"
-  "io"
-  "log"
-  "net/http"
-  "os"
-  "time"
+	"bytes"
+	"encoding/base64"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"time"
 )
 
 const DEFAULT_PORT string = "8080"
@@ -31,43 +33,51 @@ func get_vars() (string, string, string) {
   return static, media, port
 }
 
-/* handle post request containing svg */
 func save_handler(w http.ResponseWriter, r *http.Request) {
-  // go uses 2006-01-02 15:04:05 for time format referencing
-  time := time.Now().Format("2006-01-02")
-  if r.Method != http.MethodPost {
-    http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-    return
-  }
-
-  body, err := io.ReadAll(r.Body)
-  if err != nil {
-    http.Error(w, "Failed to read request body (invalid .svg?)", http.StatusInternalServerError)
-  }
-  path := media + "/" + time + ".svg";
-  log.Println("Attempting write to " + path)
-  err = os.WriteFile(path, body, 0644) // rw-r--r--
-  if err != nil {
-    http.Error(w, "Failed to save SVG to " + path, http.StatusInternalServerError)
-    fmt.Println(err)
-    return
-  }
-  fmt.Fprintln(w, "saved successfully")
+    time := time.Now().Format("2006-01-02")
+    if r.Method != http.MethodPost {
+        http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+        return
+    }
+    
+    body, err := io.ReadAll(r.Body)
+    if err != nil {
+        http.Error(w, "Failed to read request body", http.StatusInternalServerError)
+        return
+    }
+    
+    bmpData := bytes.Split(body, []byte(","))[1]
+    decodedData, err := base64.StdEncoding.DecodeString(string(bmpData))
+    if err != nil {
+        http.Error(w, "Failed to decode BMP data", http.StatusInternalServerError)
+        return
+    }
+    
+    path := media + "/" + time + ".bmp"
+    log.Println("Attempting write to " + path)
+    err = os.WriteFile(path, decodedData, 0644)
+    if err != nil {
+        http.Error(w, "Failed to save BMP to "+path, http.StatusInternalServerError)
+        fmt.Println(err)
+        return
+    }
+    
+    fmt.Fprintln(w, "saved successfully")
 }
 
 func get_handler(w http.ResponseWriter, r *http.Request) {
-  time := time.Now().Format("2006-01-02")
-  if r.Method != http.MethodGet {
-    http.Error(w, "Invalid Request method", http.StatusMethodNotAllowed)
-    return
-  }
-  svg, err := os.ReadFile(media + "/" + time + ".svg")
-  if err != nil {
-    http.Error(w, "Failed to read SVG file (does file exist?)", http.StatusInternalServerError)
-    return
-  }
-  w.Header().Set("Content-Type", "image/svg+xml")
-  w.Write(svg)
+    time := time.Now().Format("2006-01-02")
+    if r.Method != http.MethodGet {
+        http.Error(w, "Invalid Request method", http.StatusMethodNotAllowed)
+        return
+    }
+    bmpData, err := os.ReadFile(media + "/" + time + ".bmp")
+    if err != nil {
+        http.Error(w, "Failed to read BMP file (does file exist?)", http.StatusInternalServerError)
+        return
+    }
+    w.Header().Set("Content-Type", "image/bmp")
+    w.Write(bmpData)
 }
 
 func main() {
