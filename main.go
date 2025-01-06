@@ -80,10 +80,42 @@ func get_handler(w http.ResponseWriter, r *http.Request) {
     w.Write(bmpData)
 }
 
+func get_bin_handler(w http.ResponseWriter, r *http.Request) {
+    time := time.Now().Format("2006-01-02")
+    if r.Method != http.MethodGet {
+        http.Error(w, "Invalid Request method", http.StatusMethodNotAllowed)
+        return
+    }
+
+    bmpData, err := os.ReadFile(media + "/" + time + ".bmp")
+    if err != nil {
+        http.Error(w, "Failed to read BMP file", http.StatusInternalServerError)
+        return
+    }
+
+    // bmp header is 54 bytes
+    pixelData := bmpData[54:]
+    
+    output := make([]byte, 800*480)
+    
+    // Convert RGBA to binary (using just the blue channel)
+    for i := 0; i < 800*480; i++ {
+        if pixelData[i*4] > 127 {
+            output[i] = 0xFF  // white
+        } else {
+            output[i] = 0x00  // black
+        }
+    }
+
+    w.Header().Set("Content-Type", "application/octet-stream")
+    w.Write(output)
+}
+
 func main() {
   static, media, port = get_vars()
   http.Handle("/", http.FileServer(http.Dir(static)))
 
+  http.HandleFunc("/get-bin", get_bin_handler)
   http.HandleFunc("/save", save_handler)
   http.HandleFunc("/get", get_handler)
 
