@@ -3,11 +3,14 @@ package main
 import (
 	"bytes"
 	"encoding/base64"
+	"encoding/binary"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -80,6 +83,40 @@ func get_handler(w http.ResponseWriter, r *http.Request) {
     w.Write(bmpData)
 }
 
+func parseBMPHeader(bmpData []byte) (int, error) {
+    // BMP file header is at least 14 bytes,
+    // plus the size of the DIB header (commonly 40 bytes for BITMAPINFOHEADER),
+    // but it can be more if the DIB header is newer or includes color profiles, etc.
+    if len(bmpData) < 14 {
+        return 0, errors.New("file too small to be a valid BMP")
+    }
+
+    // Check the "signature" in the first 2 bytes: should be 'B' 'M'
+    // BMP docs: https://docs.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapfileheader
+    if string(bmpData[0:2]) != "BM" {
+        return 0, errors.New("not a valid BMP file (missing 'BM' signature)")
+    }
+
+    // The "data offset" (a 4-byte little-endian integer) is at bytes 10..13
+    // This indicates how many bytes from the start of the file to where the pixel data begins.
+    if len(bmpData) < 14 {
+        return 0, errors.New("file too small to read data offset")
+    }
+    dataOffset := binary.LittleEndian.Uint32(bmpData[10:14])
+
+    // Sanity checks
+    if dataOffset < 14 {
+        // data offset is suspiciously small; often it’s at least 54 for uncompressed BMP
+        return 0, fmt.Errorf("BMP data offset (%d) is smaller than 14", dataOffset)
+    }
+    if int(dataOffset) > len(bmpData) {
+        return 0, fmt.Errorf("BMP data offset (%d) is beyond file length (%d)", dataOffset, len(bmpData))
+    }
+
+    // You can do more checks here (e.g., reading the DIB header size, bits per pixel, compression, etc.)
+    return int(dataOffset), nil
+}
+
 func get_bin_handler(w http.ResponseWriter, r *http.Request) {
     time := time.Now().Format("2006-01-02")
     if r.Method != http.MethodGet {
@@ -94,7 +131,8 @@ func get_bin_handler(w http.ResponseWriter, r *http.Request) {
     }
 
     // bmp header is 54 bytes
-    pixelData := bmpData[54:]
+    data_start, err := parseBMPHeader(bmpData)
+    pixelData := bmpData[data_start:]
     
     output := make([]byte, 800*480)
     
@@ -108,6 +146,7 @@ func get_bin_handler(w http.ResponseWriter, r *http.Request) {
     }
 
     w.Header().Set("Content-Type", "application/octet-stream")
+    w.Header().Set("Content-Length", strconv.Itoa(len(output)))
     w.Write(output)
 }
 
