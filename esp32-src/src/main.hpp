@@ -4,7 +4,8 @@
 
 void display_stream_HTTP(const char* url, uint16_t width, uint16_t height);
 void text_centered(char text[]);
-void wifi_init();
-void display_init();
+void wifi_init(void);
+void display_init(void);
+void fill_black(void);
 
 #endif

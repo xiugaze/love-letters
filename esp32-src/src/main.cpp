@@ -4,27 +4,18 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 
-#include <main.hpp>
+#include "main.hpp"
+#include "ssid.h"
 
-
-#define CS 15
-#define DC 1
-#define RST 26
-#define BUSY 4
-#define CLK 13
-#define MISO 12
-#define MOSI 14
-#define CS 15
-
-const char* ssid     = "home";
-const char* password = "7andreanoS";
+const char* ssid     =  SSID;
+const char* password = PASSWORD;
 const char* HOST = "https://10.0.0.174/get-bin";
 
 /* From GxEPD2 example code*/
 #define MAX_DISPLAY_BUFFER_SIZE 65536ul
 #define MAX_HEIGHT(EPD) (EPD::HEIGHT <= MAX_DISPLAY_BUFFER_SIZE / (EPD::WIDTH / 8) ? EPD::HEIGHT : MAX_DISPLAY_BUFFER_SIZE / (EPD::WIDTH / 8))
-GxEPD2_BW<GxEPD2_750_T7, MAX_HEIGHT(GxEPD2_750_T7)> display(GxEPD2_750_T7(/* CS */ CS, /* DC */ DC, /* RST */ RST, /* BUSY */ BUSY));
-SPIClass hspi(HSPI);
+GxEPD2_BW<GxEPD2_750_T7, MAX_HEIGHT(GxEPD2_750_T7)> display(GxEPD2_750_T7(/* CS */ D7, /* DC */ D4, /* RST */ D5, /* BUSY */ D6));
+
 
 void setup() {
   Serial.begin(9600);
@@ -32,15 +23,18 @@ void setup() {
   delay(3000);
 
   wifi_init();
-  display_init();
+  display.init(115200);
 
-  display_stream_HTTP(HOST, 480, 800);
+  // text_centered("test");
+
+  // display_stream_HTTP(HOST, 480, 800);
+  // fill_black();
 }
 
 void loop() { }
 
 void text_centered(char text[]) {
-  //Serial.println("helloWorld");
+  Serial.printf("Printing %s\n", text);
   display.setRotation(1);
   display.setFont(&FreeMonoBold12pt7b);
   display.setTextColor(GxEPD_BLACK);
@@ -68,12 +62,15 @@ void wifi_init() {
   Serial.println("wifi Connected");
 }
 
-void display_init() {
-  hspi.begin(CLK, MISO, MOSI, CS); 
-  display.epd2.selectSPI(hspi, SPISettings(4000000, MSBFIRST, SPI_MODE0));
-  display.init(115200);
+void fill_black() {
+  display.setFullWindow();
   display.setRotation(1); // portrait
-  Serial.println("display initialized");
+  display.firstPage();
+  do
+  {
+    display.fillScreen(GxEPD_BLACK);
+  }
+  while (display.nextPage());
 }
 
 void display_stream_HTTP(const char* url, uint16_t width, uint16_t height)
@@ -96,6 +93,8 @@ void display_stream_HTTP(const char* url, uint16_t width, uint16_t height)
 
   display.firstPage();
   do {
+    display.setFullWindow();
+    display.fillScreen(GxEPD_WHITE);
     static uint8_t lineBuf[480*2];
     for (uint16_t row = 0; row < height; row++) {
       int bytesRead = stream.readBytes((char*)lineBuf, width);
@@ -108,6 +107,5 @@ void display_stream_HTTP(const char* url, uint16_t width, uint16_t height)
       }
     }
   } while (display.nextPage());
-
   http.end();
 }
