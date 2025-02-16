@@ -1,0 +1,10 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "LQH32PB100MNCL")(type "KiCad")(uri "${KIPRJMOD}/lib/LQH32PB100MNCL")(options "")(descr ""))
+  (lib (name "JS102011SAQN")(type "KiCad")(uri "${KIPRJMOD}/lib/JS102011SAQN")(options "")(descr ""))
+  (lib (name "F34G_1A7Q1_E8C24")(type "KiCad")(uri "${KIPRJMOD}/lib/F34G_1A7Q1_E8C24")(options "")(descr ""))
+  (lib (name "XIAO")(type "KiCad")(uri "${KIPRJMOD}/lib/XIAO")(options "")(descr ""))
+  (lib (name "RT9193_33GB")(type "KiCad")(uri "${KIPRJMOD}/lib/RT9193_33GB")(options "")(descr ""))
+  (lib (name "F3311A7H121024E200")(type "KiCad")(uri "${KIPRJMOD}/lib/F3311A7H121024E200")(options "")(descr ""))
+  (lib (name "XF2M-2415-1A")(type "KiCad")(uri "${KIPRJMOD}/lib/XF2M-2415-1A")(options "")(descr ""))
+)

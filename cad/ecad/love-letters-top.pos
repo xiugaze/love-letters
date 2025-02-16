@@ -1,0 +1,42 @@
+### Footprint positions - created on 2025-01-13T19:07:07-0600 ###
+### Printed by KiCad version 8.0.7
+## Unit = mm, Angle = deg.
+## Side : top
+# Ref     Val                 Package                                     PosX       PosY       Rot  Side
+C1        1u                  C_0402_1005Metric                        87.3873   -70.8670  -90.0000  top
+C2        1u                  C_0402_1005Metric                        94.2173   -70.6130    0.0000  top
+C3        22u                 C_0402_1005Metric                        94.2173   -72.6450    0.0000  top
+C4        4.7u                C_0402_1005Metric                        95.9238   -59.1395   90.0000  top
+C5        4.7u                C_0402_1005Metric                        95.4258   -57.1075    0.0000  top
+C6        1u                  C_0402_1005Metric                        83.3248   -81.0270  180.0000  top
+C7        1u                  C_0402_1005Metric                       107.0773   -69.5210    0.0000  top
+C8        1u                  C_0402_1005Metric                       107.0773   -71.0450    0.0000  top
+C9        1u                  C_0402_1005Metric                       107.0773   -67.9970    0.0000  top
+C10       1u                  C_0402_1005Metric                       107.0773   -66.4730  180.0000  top
+C11       1u                  C_0402_1005Metric                       107.0773   -64.9490  180.0000  top
+C12       1u                  C_0402_1005Metric                       107.0773   -63.4250  180.0000  top
+C13       1u                  C_0402_1005Metric                       107.0493   -61.9010  180.0000  top
+C14       1u                  C_0402_1005Metric                       107.0493   -60.3770  180.0000  top
+D1        MBR0530             D_SOD-123                               102.2738   -61.4735  180.0000  top
+D2        MBR0530             D_SOD-123                               102.2738   -58.1235    0.0000  top
+D3        MBR0530             D_SOD-123                               102.2738   -54.7735  180.0000  top
+J1        F3311A7H121024E200  CONN_F3311A7H121024E200_AMP             112.0840   -67.7340   90.0000  top
+J2        Battery_Connector   JST_EH_S2B-EH_1x02_P2.50mm_Horizontal    64.2653   -57.9055    0.0000  top
+L1        LQH32PB100MNCL      IND_LQH32PB100MNCL                       96.1828   -54.0595  180.0000  top
+Q1        BSS138              SOT-23                                   91.9383   -59.6475  180.0000  top
+Q2        SS8050              SOT-23                                   87.7213   -75.8940    0.0000  top
+Q3        AO3401A             SOT-23                                   87.7213   -80.5190    0.0000  top
+R1        10k                 R_0402_1005Metric                        94.9793   -62.2310   90.0000  top
+R2        0.47                R_0402_1005Metric                        96.7573   -62.2290  -90.0000  top
+R3        3                   R_0402_1005Metric                        97.7118   -57.1075    0.0000  top
+R4        R                   R_0402_1005Metric                        83.3228   -78.7410    0.0000  top
+R5        10k                 R_0402_1005Metric                        83.3323   -74.5780    0.0000  top
+R6        100k                R_0402_1005Metric                        83.3323   -76.5680    0.0000  top
+R7        220k                R_0402_1005Metric                        75.5046   -60.4990  180.0000  top
+R8        220k                R_0402_1005Metric                        73.2186   -60.4990  180.0000  top
+SW1       SW_SPDT             SW_JS102011SAQN                          95.1933   -80.2210    0.0000  top
+SW2       SW_SPDT             SW_JS102011SAQN                         105.3933   -80.2210    0.0000  top
+U1        XIAO-ESP32-S3-SMD   XIAO-ESP32S3-SMD                         69.1546   -71.9290  180.0000  top
+U2        RT9193-33GB         SOT94P279X129-5N                         90.7113   -71.5530    0.0000  top
+U3        TXB0108PW           TSSOP-20_4.4x6.5mm_P0.65mm              100.5673   -67.8190  180.0000  top
+## End
